@@ -9,7 +9,8 @@ Ce registre ne contient que les informations verifiees dans le depot ou par exec
 | A1 — Initialisation Maven | Termine | Parent et 8 modules; commit `72907e1`; build global reussi | Aucun pour le perimetre A1 |
 | A2 — Organisation documentaire | Termine localement | README, structure docs, checklist, suivi, rapport HTML/PDF et capture; l'utilisateur indique que la feuille Google Sheet est deja remplie | Le contenu et l'URL de la feuille ne sont pas verifies depuis ce depot |
 | Parties A restantes | A preciser | Le detail du sujet n'est pas present dans le depot | Reporter les criteres officiels |
-| B a I | A preciser | Aucun descriptif officiel disponible dans le depot | Ajouter le perimetre avant d'evaluer l'avancement |
+| B1 — Diagramme de classes UML | Termine | Source PlantUML, export SVG (1769 x 750) et choix de conception | Export PlantUML 1.2025.10 valide; verifier le modele avec le sujet officiel avant implementation |
+| B restant et C a I | A preciser | Aucun descriptif detaille disponible dans le depot | Ajouter le perimetre avant d'evaluer l'avancement |
 
 ## Journal des executions
 

@@ -1,0 +1,110 @@
+@startuml
+title B1 - Diagramme de classes du domaine bancaire
+!pragma layout smetana
+left to right direction
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam package {
+  BackgroundColor #F4F7F8
+  BorderColor #47616F
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #126B68
+  ArrowColor #526577
+}
+skinparam note {
+  BackgroundColor #FFF8E6
+  BorderColor #B58A34
+}
+
+package "Account Service\nOwns Account data" <<microservice>> {
+  class Account <<aggregate root>> {
+    +id : UUID
+    +customerReference : String
+    +status : AccountStatus
+    +currency : String
+    +balance : BigDecimal
+  }
+
+  enum AccountStatus {
+    PENDING
+    ACTIVE
+    SUSPENDED
+    CLOSED
+  }
+}
+
+package "Transaction Service\nOwns transaction and transfer data" <<microservice>> {
+  class Transaction <<entity>> {
+    +id : UUID
+    +accountId : UUID
+    +amount : BigDecimal
+    +currency : String
+    +merchantCategory : String
+    +country : String
+    +createdAt : Instant
+  }
+
+  class Transfer <<entity>> {
+    +id : UUID
+    +sourceAccountId : UUID
+    +destinationAccountId : UUID
+    +amount : BigDecimal
+    +currency : String
+    +createdAt : Instant
+    +status : TransferStatus
+  }
+
+  class TransactionCreatedEvent <<integration event>> {
+    +eventId : UUID
+    +eventType : String
+    +transactionId : UUID
+    +accountId : UUID
+    +amount : BigDecimal
+    +currency : String
+    +occurredAt : Instant
+  }
+
+  enum TransferStatus {
+    PENDING
+    COMPLETED
+    REJECTED
+    FAILED
+    CANCELLED
+  }
+}
+
+Account "1" <-- "0..*" Transaction : accountId reference
+Account "1" <-- "0..*" Transfer : sourceAccountId reference
+Account "1" <-- "0..*" Transfer : destinationAccountId reference
+Transaction "1" <-- "0..*" TransactionCreatedEvent : transactionId reference
+
+note bottom of Account
+  Account Service is the sole owner of account state
+  and balance. Other services use account IDs and
+  service contracts, never a cross-database JPA link.
+end note
+
+note bottom of Transfer
+  A transfer refers to two accounts by ID.
+  Transaction Service coordinates the lifecycle;
+  account checks and balance changes cross the
+  service boundary through explicit contracts.
+end note
+
+note right of TransactionCreatedEvent
+  Immutable message contract, not a JPA entity.
+  Published for asynchronous consumers such as
+  transaction-consumer and fraud-detection.
+  Consumers must not rely on a shared database.
+end note
+
+note on link
+  Dashed links show logical references/cardinalities only.
+  They do not imply foreign keys or ORM relationships
+  across service-owned databases.
+end note
+@enduml
