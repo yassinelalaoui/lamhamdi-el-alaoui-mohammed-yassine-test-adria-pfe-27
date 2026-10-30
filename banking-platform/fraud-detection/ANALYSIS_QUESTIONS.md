@@ -48,3 +48,4 @@ Une validation aléatoire classique (comme un K-Fold cross-validation standard o
 2. **Dérive des concepts (Concept Drift)** : Les méthodes des fraudeurs évoluent en permanence (attaques par force brute, phishing ciblé, contournement des règles de géolocalisation, nouvelles catégories de marchands).
 3. **Saisonnalité et tendances macro-économiques** : Les comportements d'achat varient selon les périodes de l'année (Black Friday, fêtes de fin d'année, soldes).
 4. **Réalisme opérationnel** : Une **validation temporelle** (ex. TimeSeriesSplit : entraînement sur les mois $1$ à $N$, évaluation sur le mois $N+1$) reflète exactement le cycle de vie du modèle en production, où celui-ci doit généraliser sur des flux transactionnels futurs sans jamais les avoir observés.
+

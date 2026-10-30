@@ -9,3 +9,4 @@ public class TransactionConsumerApplication {
         SpringApplication.run(TransactionConsumerApplication.class, args);
     }
 }
+

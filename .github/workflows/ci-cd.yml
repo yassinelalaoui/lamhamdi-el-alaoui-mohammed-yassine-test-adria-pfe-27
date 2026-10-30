@@ -144,3 +144,4 @@ jobs:
           # kubectl rollout restart deployment/api-gateway -n banking-prod
           # kubectl rollout status deployment/api-gateway -n banking-prod --timeout=120s
           echo "Déploiement validé avec succès !"
+

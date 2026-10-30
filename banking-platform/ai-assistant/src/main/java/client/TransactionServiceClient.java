@@ -48,3 +48,4 @@ public interface TransactionServiceClient {
             BigDecimal amount,
             String currency) {}
 }
+

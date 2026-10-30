@@ -89,3 +89,4 @@ La plateforme bancaire a été conçue pour répondre aux besoins d'une banque m
 2. **Docker Compose :** `docker-compose.yml` orchestrant Postgres, Kafka KRaft, Keycloak, Eureka, Config Server, Gateway, microservices et portail Web.
 3. **Pipeline CI/CD :** Workflow GitHub Actions `.github/workflows/ci-cd.yml` intégrant compilation, tests unitaires, validation ML, build Docker, push sur GHCR et déploiement continu.
 4. **Questions DevOps :** Réponses exhaustives rédigées dans `docs/devops/DEVOPS_ANSWERS.md`.
+

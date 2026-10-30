@@ -80,3 +80,4 @@ public class TelegramBotService {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record TelegramChat(@JsonProperty("id") long id) {}
 }
+

@@ -26,3 +26,4 @@ class TransactionEventConsumerTest {
         assertDoesNotThrow(() -> consumer.consume(event, accountId.toString(), 0, 101L));
     }
 }
+

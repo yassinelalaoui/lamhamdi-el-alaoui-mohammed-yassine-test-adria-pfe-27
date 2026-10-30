@@ -29,3 +29,4 @@ public interface AccountServiceClient {
             String currency,
             BigDecimal initialBalance) {}
 }
+

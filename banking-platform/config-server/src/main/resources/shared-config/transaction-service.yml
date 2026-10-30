@@ -1,3 +1,4 @@
 bank:
   transaction:
     max-amount: 1000
+

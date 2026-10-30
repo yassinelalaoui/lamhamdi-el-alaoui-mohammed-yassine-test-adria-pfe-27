@@ -13,3 +13,4 @@ public record TransactionCreatedEvent(
         String currency,
         Instant occurredAt) {
 }
+

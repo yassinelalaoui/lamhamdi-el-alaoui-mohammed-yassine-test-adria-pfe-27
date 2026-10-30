@@ -42,3 +42,4 @@ Pour garantir une haute disponibilité (Zero-Downtime) et une récupération imm
   - En environnement Kubernetes : exécution automatique de `kubectl rollout undo deployment/<service-name>`.
 - **Compatibilité des schémas de données (Expand/Contract pattern)** :
   - Toute modification de base de données (Flyway) doit être rétro-compatible (ajouter des colonnes optionnelles d'abord, migrer les données, puis supprimer les anciennes colonnes ultérieurement) afin qu'un rollback du code applicatif ne soit jamais bloqué par le schéma de la base de données.
+

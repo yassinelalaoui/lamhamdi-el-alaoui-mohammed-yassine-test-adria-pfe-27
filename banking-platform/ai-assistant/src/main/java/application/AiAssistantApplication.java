@@ -13,3 +13,4 @@ public class AiAssistantApplication {
         SpringApplication.run(AiAssistantApplication.class, args);
     }
 }
+

@@ -173,3 +173,4 @@ services:
 
 volumes:
   pgdata:
+

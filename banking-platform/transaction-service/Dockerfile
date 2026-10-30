@@ -5,3 +5,4 @@ COPY ${JAR_FILE} app.jar
 EXPOSE 8082
 USER 1001:1001
 ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+

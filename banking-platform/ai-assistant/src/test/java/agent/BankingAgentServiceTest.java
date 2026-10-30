@@ -78,3 +78,4 @@ class BankingAgentServiceTest {
         assertTrue(response.message().contains("assistant bancaire"));
     }
 }
+

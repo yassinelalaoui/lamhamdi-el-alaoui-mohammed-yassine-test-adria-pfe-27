@@ -72,3 +72,4 @@ def generate_fraud_dataset(file_path, n_samples=5000, fraud_ratio=0.035, seed=42
 if __name__ == "__main__":
     out = os.path.join(os.path.dirname(__file__), "bank_transactions.csv")
     generate_fraud_dataset(out, n_samples=6000, fraud_ratio=0.038)
+

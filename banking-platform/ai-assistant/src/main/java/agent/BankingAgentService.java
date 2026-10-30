@@ -136,3 +136,4 @@ public class BankingAgentService {
 
     public record AgentResponse(String message, String intent, Object details) {}
 }
+
