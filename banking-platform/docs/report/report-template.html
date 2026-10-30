@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modele de rapport — ADIRIA PFE 27</title>
+  <style>
+    @page { size: A4; margin: 20mm 18mm 19mm; }
+    :root { color-scheme: light; --ink: #172a3a; --muted: #526577; --accent: #126b68; --line: #c9d4db; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); font: 11pt/1.5 "Aptos", "Segoe UI", sans-serif; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { margin: 0 0 12mm; font-size: 30pt; }
+    h2 { margin: 0 0 8mm; padding-bottom: 3mm; border-bottom: 2px solid var(--accent); font-size: 19pt; }
+    h3 { margin: 7mm 0 3mm; font-size: 13pt; }
+    p { margin: 0 0 4mm; }
+    table { width: 100%; margin: 4mm 0 7mm; border-collapse: collapse; }
+    th, td { padding: 2.5mm; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #e9f1f1; }
+    .cover { min-height: 250mm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
+    .eyebrow { margin-bottom: 8mm; color: var(--accent); font-size: 12pt; font-weight: 700; }
+    .subtitle { max-width: 135mm; margin-bottom: 22mm; color: var(--muted); font-size: 16pt; }
+    .metadata { width: 100%; border-top: 2px solid var(--accent); }
+    .metadata td:first-child { width: 38%; color: var(--muted); }
+    .page { page-break-before: always; }
+    .toc li { margin: 3mm 0; }
+    .part { margin: 8mm 0; padding: 5mm; border: 1px solid var(--line); break-inside: avoid; }
+    .part h3 { margin-top: 0; color: var(--accent); }
+    .field { min-height: 12mm; margin: 2mm 0 4mm; padding: 2mm; border-bottom: 1px solid var(--line); color: var(--muted); }
+    .field.large { min-height: 28mm; }
+    .note { padding: 4mm; border-left: 3px solid var(--accent); background: #f2f6f6; color: var(--muted); }
+    .end { margin-top: 15mm; padding-top: 5mm; border-top: 1px solid var(--line); color: var(--muted); }
+  </style>
+</head>
+<body>
+  <section class="cover">
+    <div class="eyebrow">EPREUVE TECHNIQUE · ADIRIA PFE 27</div>
+    <h1>Plateforme bancaire<br>Rapport technique</h1>
+    <p class="subtitle">Architecture microservices, intelligence artificielle et developpement full-stack</p>
+    <table class="metadata">
+      <tr><td>Etudiant(e)</td><td>[Nom et prenom]</td></tr>
+      <tr><td>Etablissement / formation</td><td>[A renseigner]</td></tr>
+      <tr><td>Encadrant(e)</td><td>[A renseigner]</td></tr>
+      <tr><td>Periode de l'epreuve</td><td>[Dates reelles]</td></tr>
+      <tr><td>Version du rapport</td><td>[Numero et date]</td></tr>
+    </table>
+    <p class="end">Modele a completer avec les informations et preuves reelles de l'epreuve. Remplacer tous les champs entre crochets.</p>
+  </section>
+
+  <section>
+    <h2>Sommaire</h2>
+    <ol class="toc">
+      <li>Contexte et objectifs</li>
+      <li>Architecture</li>
+      <li>Realisation des parties A a I</li>
+      <li>Captures d'ecran et preuves</li>
+      <li>Tests et resultats</li>
+      <li>Questions theoriques</li>
+      <li>Conclusion</li>
+    </ol>
+  </section>
+
+  <section class="page">
+    <h2>1. Contexte et objectifs</h2>
+    <h3>Contexte</h3><div class="field large">[Sujet, contexte organisationnel et contraintes issus du brief officiel]</div>
+    <h3>Objectifs</h3><div class="field large">[Objectifs fonctionnels et techniques verifies]</div>
+    <h3>Perimetre et exclusions</h3><div class="field">[Perimetre traite, limites et elements hors perimetre]</div>
+    <h3>Technologies et versions</h3><div class="field">[Versions effectivement utilisees et moyen de verification]</div>
+  </section>
+
+  <section class="page">
+    <h2>2. Architecture</h2>
+    <h3>Vue generale</h3><div class="field large">[Inserer une architecture validee et expliquer les flux reellement implementes]</div>
+    <h3>Composants et responsabilites</h3><div class="field large">[Decrire les composants implementes, leurs interfaces et leurs responsabilites]</div>
+    <h3>Donnees et integrations</h3><div class="field">[Stockages, messages, API externes et configurations effectivement utilises]</div>
+    <p class="note">Distinguer explicitement architecture cible, decisions confirmees et elements encore en attente.</p>
+  </section>
+
+  <section class="page">
+    <h2>3. Realisation des parties A a I</h2>
+    <p>Pour chaque partie, reprendre l'intitule exact du sujet officiel et indiquer les preuves. Supprimer les parties qui ne s'appliquent pas uniquement apres confirmation du brief.</p>
+    <div class="part"><h3>Partie A — [Intitule officiel]</h3><p><strong>Objectif et criteres :</strong></p><div class="field">[Exigences exactes]</div><p><strong>Realisation et decisions :</strong></p><div class="field large">[Travaux effectivement realises]</div><p><strong>Statut, limites et preuves :</strong></p><div class="field">[Statut verifie, liens vers code, tests et captures]</div></div>
+    <div class="part"><h3>Partie B — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+    <div class="part"><h3>Partie C — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+    <div class="part"><h3>Partie D — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+    <div class="part"><h3>Partie E — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+    <div class="part"><h3>Partie F — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+    <div class="part"><h3>Partie G — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+    <div class="part"><h3>Partie H — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+    <div class="part"><h3>Partie I — [Intitule officiel]</h3><p>Objectif, realisation, decisions et preuves :</p><div class="field large">[A completer]</div></div>
+  </section>
+
+  <section class="page">
+    <h2>4. Captures d'ecran et preuves</h2>
+    <p>Inserer uniquement des captures reelles, datees et reliees a une exigence ou une commande.</p>
+    <table>
+      <thead><tr><th>Reference</th><th>Partie / scenario</th><th>Date et commande</th><th>Resultat observe</th></tr></thead>
+      <tbody>
+        <tr><td>[ID]</td><td>[A-I, scenario]</td><td>[Date, commande]</td><td>[Resultat]</td></tr>
+        <tr><td>[ID]</td><td>[A-I, scenario]</td><td>[Date, commande]</td><td>[Resultat]</td></tr>
+        <tr><td>[ID]</td><td>[A-I, scenario]</td><td>[Date, commande]</td><td>[Resultat]</td></tr>
+      </tbody>
+    </table>
+    <div class="field large">[Inserer ou referencer les images et expliquer ce qu'elles prouvent]</div>
+  </section>
+
+  <section class="page">
+    <h2>5. Tests et resultats</h2>
+    <table>
+      <thead><tr><th>ID</th><th>Type / objectif</th><th>Commande ou procedure</th><th>Resultat</th><th>Preuve / anomalie</th></tr></thead>
+      <tbody>
+        <tr><td>[T-001]</td><td>[Unitaire / integration / E2E]</td><td>[Commande]</td><td>[Passe / echoue / non execute]</td><td>[Reference]</td></tr>
+        <tr><td>[T-002]</td><td>[Type et objectif]</td><td>[Commande]</td><td>[Resultat observe]</td><td>[Reference]</td></tr>
+        <tr><td>[T-003]</td><td>[Type et objectif]</td><td>[Commande]</td><td>[Resultat observe]</td><td>[Reference]</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Indiquer explicitement les tests ignores. Une compilation avec tests ignores ne vaut pas validation fonctionnelle.</p>
+  </section>
+
+  <section class="page">
+    <h2>6. Questions theoriques</h2>
+    <p>Reporter les questions exactes de l'organisateur et repondre avec des sources verifiables.</p>
+    <h3>Question 1 — [Texte exact]</h3><div class="field large">[Reponse et justification]</div>
+    <h3>Question 2 — [Texte exact]</h3><div class="field large">[Reponse et justification]</div>
+    <h3>Question 3 — [Texte exact]</h3><div class="field large">[Reponse et justification]</div>
+    <p><strong>Sources :</strong> [Documentation, references ou code correspondant]</p>
+  </section>
+
+  <section class="page">
+    <h2>7. Conclusion</h2>
+    <h3>Bilan des objectifs</h3><div class="field large">[Objectifs atteints et preuves]</div>
+    <h3>Limites et travaux restants</h3><div class="field large">[Limites reelles, dependances et travaux non termines]</div>
+    <h3>Retours d'experience</h3><div class="field">[Apprentissages et suites possibles]</div>
+  </section>
+</body>
+</html>

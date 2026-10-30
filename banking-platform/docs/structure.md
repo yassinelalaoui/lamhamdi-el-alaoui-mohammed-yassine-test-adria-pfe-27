@@ -1,18 +1,25 @@
-# Repository structure
+# Organisation du depot
 
-`banking-platform/` is the Maven aggregator and project root.
+`banking-platform/` est la racine du projet Maven et de sa documentation.
 
-| Directory | Maven module | Initial dependency focus |
+| Chemin | Module Maven | Contenu / statut |
 | --- | --- | --- |
-| `account-service/` | Yes | Spring MVC, validation |
-| `transaction-service/` | Yes | Spring MVC, validation |
-| `api-gateway/` | Yes | Spring Cloud Gateway |
-| `discovery-service/` | Yes | Netflix Eureka server |
-| `config-server/` | Yes | Spring Cloud Config server |
-| `ai-assistant/` | Yes | Spring MVC, validation; AI provider not selected |
-| `transaction-consumer/` | Yes | Spring Kafka |
-| `fraud-detection/` | Yes | Spring MVC, validation |
-| `frontend/` | No | Reserved for the separately selected frontend toolchain |
-| `docs/` | No | Architecture and project documentation |
+| `account-service/` | Oui | Dependances Spring MVC et validation; logique a implementer |
+| `transaction-service/` | Oui | Dependances Spring MVC et validation; logique a implementer |
+| `api-gateway/` | Oui | Spring Cloud Gateway; routes a definir |
+| `discovery-service/` | Oui | Serveur Eureka; configuration a ajouter |
+| `config-server/` | Oui | Spring Cloud Config Server; configuration a ajouter |
+| `ai-assistant/` | Oui | Spring MVC; fournisseur IA non choisi |
+| `transaction-consumer/` | Oui | Spring Kafka; broker et traitement a configurer |
+| `fraud-detection/` | Oui | Spring MVC et validation; regles a definir |
+| `frontend/` | Non | Interface reservee; framework non choisi |
+| `docs/architecture/` | Non | Architecture et decisions a documenter |
+| `docs/uml/` | Non | Diagrammes UML a ajouter |
+| `docs/api/` | Non | Contrats API a ajouter |
+| `docs/screenshots/` | Non | Captures reelles, classees par partie et scenario |
+| `docs/tests/` | Non | Strategie, resultats et suivi des tests |
+| `docs/report/` | Non | Rapport final, modele et questions theoriques |
 
-The Maven reactor contains the eight Java service modules. `frontend/` is intentionally not an empty Maven module: its framework and build tool have not been specified. No service contains business logic yet.
+Le reactor Maven comprend un POM parent et huit modules Java. Les dossiers documentaires ne sont pas des modules Maven. Les noms de services indiquent les emplacements prevus; les interactions, regles metier et protocoles restent a confirmer dans le sujet officiel. Aucun service ne contient encore de logique metier ou de point d'entree executable.
+
+Voir aussi la [checklist des parties A-I](checklist.md) et le [registre d'avancement](tests/progress-tracker.md).
