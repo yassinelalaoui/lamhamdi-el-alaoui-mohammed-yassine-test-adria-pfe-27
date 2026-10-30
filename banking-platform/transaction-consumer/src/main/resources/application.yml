@@ -1,0 +1,27 @@
+server:
+  port: ${SERVER_PORT:8085}
+
+spring:
+  application:
+    name: transaction-consumer
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: transaction-audit-consumer
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: domain.TransactionCreatedEvent
+
+bank:
+  kafka:
+    topic:
+      transactions-created: bank.transactions.created
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
