@@ -10,6 +10,7 @@ Ce registre ne contient que les informations verifiees dans le depot ou par exec
 | A2 — Organisation documentaire | Termine localement | README, structure docs, checklist, suivi, rapport HTML/PDF et capture; l'utilisateur indique que la feuille Google Sheet est deja remplie | Le contenu et l'URL de la feuille ne sont pas verifies depuis ce depot |
 | Parties A restantes | A preciser | Le detail du sujet n'est pas present dans le depot | Reporter les criteres officiels |
 | B1 — Diagramme de classes UML | Termine | Source PlantUML, export SVG (1769 x 750) et choix de conception | Export PlantUML 1.2025.10 valide; verifier le modele avec le sujet officiel avant implementation |
+| B2 — Architecture technique et flux | Termine (conception) | Diagramme PlantUML/SVG/PNG, description des six flux et choix architecturaux | Confirmer les hypotheses de transport, fournisseur LLM, stockage et integration Python avant implementation |
 | B restant et C a I | A preciser | Aucun descriptif detaille disponible dans le depot | Ajouter le perimetre avant d'evaluer l'avancement |
 
 ## Journal des executions

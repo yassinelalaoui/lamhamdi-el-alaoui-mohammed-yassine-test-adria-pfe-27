@@ -5,7 +5,7 @@ Les intitulés detailles des parties B a I ne sont pas disponibles dans le depot
 | Partie | Perimetre officiel connu | Realisation | Verification et preuves | Rapport |
 | --- | --- | --- | --- | --- |
 | A | A1 initialisation du repository/Maven et A2 organisation documentaire | [x] A1; [x] livrables documentaires A2; [ ] autres exigences A a confirmer | [x] build Maven reussi (`-DskipTests`); [x] capture; [x] feuille Google declaree remplie par l'utilisateur (contenu non verifie ici) | [x] suivi A1/A2 documente |
-| B | B1 — diagramme de classes du domaine bancaire | [x] Conception et source PlantUML produites | [x] SVG exporte et inspecte; aucune implementation metier pretendue | [x] Choix documentes dans `docs/architecture/domain-model.md` |
+| B | B1 — diagramme de classes; B2 — architecture technique et flux | [x] B1 et B2 documentes en PlantUML | [x] Exports SVG/PNG valides et inspectes; aucune implementation metier pretendue | [x] Choix documentes dans `docs/architecture/` |
 | C | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
 | D | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
 | E | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
