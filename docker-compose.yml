@@ -1,0 +1,175 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # Infrastructure: PostgreSQL Database
+  # -------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: adria-postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-adria}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-adria_secret}
+      POSTGRES_DB: ${DB_NAME:-banking}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adria -d banking"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -------------------------------------------------------------
+  # Infrastructure: Apache Kafka (Kraft Mode)
+  # -------------------------------------------------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: adria-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+  # -------------------------------------------------------------
+  # Infrastructure: Keycloak Authentication & IAM
+  # -------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: adria-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    ports:
+      - "8089:8080"
+
+  # -------------------------------------------------------------
+  # Microservices Techniques
+  # -------------------------------------------------------------
+  discovery-service:
+    build:
+      context: ./banking-platform/discovery-service
+    container_name: adria-discovery-service
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health | grep UP || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  config-server:
+    build:
+      context: ./banking-platform/config-server
+    container_name: adria-config-server
+    ports:
+      - "8888:8888"
+    depends_on:
+      - discovery-service
+    environment:
+      EUREKA_URI: http://discovery-service:8761/eureka
+
+  api-gateway:
+    build:
+      context: ./banking-platform/api-gateway
+    container_name: adria-api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-service
+    environment:
+      EUREKA_URI: http://discovery-service:8761/eureka
+
+  # -------------------------------------------------------------
+  # Microservices Métier
+  # -------------------------------------------------------------
+  account-service:
+    build:
+      context: ./banking-platform/account-service
+    container_name: adria-account-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/banking
+      DB_USERNAME: adria
+      DB_PASSWORD: adria_secret
+      EUREKA_URI: http://discovery-service:8761/eureka
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/banking
+
+  transaction-service:
+    build:
+      context: ./banking-platform/transaction-service
+    container_name: adria-transaction-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-service:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/banking
+      DB_USERNAME: adria
+      DB_PASSWORD: adria_secret
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      EUREKA_URI: http://discovery-service:8761/eureka
+      BANK_TRANSACTION_MAX_AMOUNT: 1000
+
+  ai-assistant:
+    build:
+      context: ./banking-platform/ai-assistant
+    container_name: adria-ai-assistant
+    ports:
+      - "8084:8084"
+    depends_on:
+      - discovery-service
+    environment:
+      EUREKA_URI: http://discovery-service:8761/eureka
+
+  transaction-consumer:
+    build:
+      context: ./banking-platform/transaction-consumer
+    container_name: adria-transaction-consumer
+    ports:
+      - "8085:8085"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+  # -------------------------------------------------------------
+  # Client Web Portal
+  # -------------------------------------------------------------
+  web-client:
+    build:
+      context: ./web-client
+    container_name: adria-web-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+
+volumes:
+  pgdata:

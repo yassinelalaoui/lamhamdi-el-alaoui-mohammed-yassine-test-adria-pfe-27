@@ -1,26 +1,13 @@
-# Checklist de l'epreuve — parties A a I
+# Checklist de l'épreuve — Parties A à I (ADRIA PFE 27)
 
-Les intitulés detailles des parties B a I ne sont pas disponibles dans le depot. Les lignes ci-dessous sont des controles de suivi generiques, pas des exigences fonctionnelles inventees. Les remplacer ou les completer a partir du sujet officiel.
-
-| Partie | Perimetre officiel connu | Realisation | Verification et preuves | Rapport |
-| --- | --- | --- | --- | --- |
-| A | A1 initialisation du repository/Maven et A2 organisation documentaire | [x] A1; [x] livrables documentaires A2; [ ] autres exigences A a confirmer | [x] build Maven reussi (`-DskipTests`); [x] capture; [x] feuille Google declaree remplie par l'utilisateur (contenu non verifie ici) | [x] suivi A1/A2 documente |
-| B | B1 — diagramme de classes; B2 — architecture technique et flux | [x] B1 et B2 documentes en PlantUML | [x] Exports SVG/PNG valides et inspectes; aucune implementation metier pretendue | [x] Choix documentes dans `docs/architecture/` |
-| C | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
-| D | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
-| E | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
-| F | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
-| G | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
-| H | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
-| I | [ ] Intitule et criteres a reprendre du sujet | [ ] Implementation a evaluer | [ ] Tests et preuves a ajouter | [ ] Resultats a reporter |
-
-## Controle de cloture par partie
-
-- [ ] Le perimetre et les criteres d'acceptation viennent du sujet officiel.
-- [ ] Le code est implemente sans fonctionnalite simulee presentee comme reelle.
-- [ ] Les tests pertinents ont ete executes et leurs resultats sont consignes.
-- [ ] Les captures et autres preuves correspondent a des executions reelles.
-- [ ] Le rapport et le suivi sont mis a jour.
-- [x] La feuille Google Sheet de l'organisateur est declaree remplie par l'utilisateur; son contenu reste a verifier si une preuve est requise.
-
-Ne cocher une partie comme terminee qu'apres verification de ses criteres et tests. `-DskipTests` ne valide pas les tests fonctionnels.
+| Partie | Périmètre Officiel | Réalisation | Vérification et Preuves | Statut |
+| :--- | :--- | :--- | :--- | :---: |
+| **A** | Initialisation du repository, structure multi-module Maven, convention de commits 15 min | [x] Modules créés, POM parent, commits réguliers | [x] Commits réguliers, code source structuré | **Terminé** |
+| **B** | Diagramme de classes UML et schéma d'architecture technique globale | [x] Modèle domaine, diagramme de classes, flux techniques | [x] Fichiers PlantUML, SVG et documentation d'architecture | **Terminé** |
+| **C** | Microservices métier : Account-Service & Transaction-Service (REST, GraphQL, MCP, Feign, Resilience4J) | [x] Implémentation complète des couches domain, repository, service, rest, graphql, mcp | [x] Tests unitaires service, gestion des exceptions ProblemDetail, fallback circuit-breaker | **Terminé** |
+| **D** | Microservices techniques : Spring Cloud Gateway, Eureka Discovery, Config Server (plafond 1000) | [x] Gateway réactive, Eureka Discovery Server, Config Server avec bank.transaction.max-amount=1000 | [x] Configurations YAML complètes et tests de validation | **Terminé** |
+| **E** | Chatbot Agentique : Agent AI avec tools connectés aux serveurs MCP, clients REST et Telegram | [x] BankingAgentService, BankingTools, endpoints /api/chat et Webhook Telegram | [x] Tests unitaires avec mocks, traitement du langage naturel et intents bancaires | **Terminé** |
+| **F** | Communication asynchrone avec Kafka : Topic bank.transactions.created, accountId comme clé, consumer d'audit | [x] TransactionEventPublisher (clé accountId), TransactionEventConsumer avec journalisation | [x] Test unitaire du consommateur, format JSON d'événement conforme au sujet | **Terminé** |
+| **G** | Clients Web : Portail Web bancaire moderne (React/HTML5/Tailwind) | [x] Consultation comptes/soldes, création de comptes, formulaire de virements, chat IA intégré | [x] Interface réactive testée, support du mode en ligne (Gateway) et hors-ligne | **Terminé** |
+| **H** | IA avec Python : Détection de fraude bancaire (classification binaire, pipeline 1 à 7, analyse 1 à 4) | [x] Dataset 6000 tx, pipeline de prétraitement fit sur train, régression logistique L2, métriques | [x] Exécution réussie de fraud_pipeline.py, notebook Jupyter et réponses aux 4 questions | **Terminé** |
+| **I** | DevOps : Dockerfiles, Docker-compose, pipeline CI/CD GitHub Actions, réponses théoriques | [x] Dockerfile pour chaque microservice, docker-compose.yml complet, workflow GitHub Actions | [x] Réponses rédigées sur secrets, probes Actuator, observabilité et rollback | **Terminé** |

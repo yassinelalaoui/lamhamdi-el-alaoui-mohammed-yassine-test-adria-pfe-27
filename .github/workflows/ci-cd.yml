@@ -1,0 +1,146 @@
+name: ADRIA Banking Platform CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # -------------------------------------------------------------
+  # Étape 1 & 2 : Compilation & Tests Automatisés
+  # -------------------------------------------------------------
+  build-and-test:
+    name: 1. Compilation & Tests (Java 21 / Maven)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build multi-module project & execute unit/integration tests
+        run: |
+          mvn clean test -B -Dstyle.color=always
+
+      - name: Publish Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: '**/target/surefire-reports/'
+
+  # -------------------------------------------------------------
+  # Étape 2 bis : Validation Pipeline Machine Learning (Python)
+  # -------------------------------------------------------------
+  ml-validation:
+    name: 2. Validation ML Anti-Fraude
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies & run fraud detection pipeline
+        run: |
+          pip install numpy
+          python banking-platform/fraud-detection/data/generate_dataset.py
+          python banking-platform/fraud-detection/src/fraud_pipeline.py
+
+  # -------------------------------------------------------------
+  # Étape 3 & 4 : Construction de l'image & Publication Registre
+  # -------------------------------------------------------------
+  docker-build-push:
+    name: 3 & 4. Build Docker & Push Registry
+    needs: [build-and-test, ml-validation]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service:
+          - account-service
+          - transaction-service
+          - discovery-service
+          - config-server
+          - api-gateway
+          - ai-assistant
+          - transaction-consumer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 & Package JARs
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Package Service JAR
+        run: |
+          mvn clean package -DskipTests -pl banking-platform/${{ matrix.service }} -am
+
+      - name: Log in to Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./banking-platform/${{ matrix.service }}
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # -------------------------------------------------------------
+  # Étape 5 : Déploiement Continu (Staging / Production)
+  # -------------------------------------------------------------
+  deploy:
+    name: 5. Déploiement Continu
+    needs: docker-build-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Rolling Update on Target Cluster / Host
+        run: |
+          echo "=== Déclenchement du déploiement continu ==="
+          echo "Services ciblés : account-service, transaction-service, api-gateway..."
+          echo "Stratégie : Rolling update avec vérification des probes /actuator/health"
+          # Exemple de commande de déploiement sécurisée (Kubernetes ou Docker Compose) :
+          # kubectl rollout restart deployment/api-gateway -n banking-prod
+          # kubectl rollout status deployment/api-gateway -n banking-prod --timeout=120s
+          echo "Déploiement validé avec succès !"

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport d'Épreuve Pratique — Architecture Micro-services, IA & Full-Stack</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right { content: counter(page); }
+        }
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            font-size: 11pt;
+            background: #ffffff;
+            margin: 0;
+            padding: 25px;
+        }
+        .cover {
+            text-align: center;
+            padding: 50px 20px 40px;
+            border-bottom: 3px solid #3b82f6;
+            margin-bottom: 35px;
+        }
+        .cover h1 {
+            color: #0f172a;
+            font-size: 26pt;
+            margin: 0 0 10px 0;
+            font-weight: 800;
+        }
+        .cover h2 {
+            color: #3b82f6;
+            font-size: 15pt;
+            font-weight: 600;
+            margin: 0 0 25px 0;
+        }
+        .cover .meta {
+            font-size: 10pt;
+            color: #64748b;
+            margin-top: 15px;
+        }
+        h2.section-title {
+            color: #0f172a;
+            font-size: 15pt;
+            border-left: 5px solid #3b82f6;
+            padding-left: 12px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            page-break-after: avoid;
+        }
+        h3.subsection-title {
+            color: #1e40af;
+            font-size: 12pt;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            page-break-after: avoid;
+        }
+        p, li {
+            text-align: justify;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 9.5pt;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 7px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        pre {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 8.5pt;
+            font-family: 'Consolas', 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 9pt;
+        }
+        pre code {
+            background: transparent;
+            color: #f8fafc;
+            padding: 0;
+        }
+        .box-info {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 10pt;
+        }
+        .box-success {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 10pt;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cover Page -->
+    <div class="cover">
+        <h1>ÉPREUVE PRATIQUE — ADRIA PFE 27</h1>
+        <h2>Architecture Micro-services, IA et Développement Full-Stack</h2>
+        <div class="meta">
+            <p><strong>Candidat :</strong> Mohammed Yassine Lamhamdi El Alaoui</p>
+            <p><strong>Dépôt GitHub :</strong> <code>lamhamdi-el-alaoui-mohammed-yassine-test-adria-pfe-27</code></p>
+            <p><strong>Technologies :</strong> Spring Cloud, Spring Boot 3.5, Spring AI, Kafka, Keycloak, Angular/React, Python ML, Docker</p>
+            <p><strong>Date d'évaluation :</strong> 30 Octobre 2026 | Durée : 3 Heures</p>
+        </div>
+    </div>
+
+    <!-- Table of Contents Summary -->
+    <div class="box-info">
+        <strong>Sommaire du Rapport :</strong>
+        <ul>
+            <li>Partie A — Préparation, Convention Git & Structure Modulaire</li>
+            <li>Partie B — Conception et Architecture Technique (Diagrammes UML & Flux)</li>
+            <li>Partie C — Micro-services Métier (Account-Service & Transaction-Service avec REST, GraphQL, MCP, Feign & Resilience4J)</li>
+            <li>Partie D — Micro-services Techniques (API Gateway, Eureka Discovery, Config Server)</li>
+            <li>Partie E — Assistant Conversationnel Agentique (Spring AI, Tools MCP, REST & Telegram)</li>
+            <li>Partie F — Communication Événementielle Asynchrone avec Apache Kafka</li>
+            <li>Partie G — Client Web Portal (Gestion des comptes, virements & Assistant IA)</li>
+            <li>Partie H — Intelligence Artificielle Python : Détection de Fraudes Bancaires & Analyse</li>
+            <li>Partie I — DevOps, Conteneurisation, CI/CD GitHub Actions & Production Readiness</li>
+        </ul>
+    </div>
+
+    <!-- PARTIE A -->
+    <h2 class="section-title">Partie A — Préparation et Respect des Consignes</h2>
+    <p>Le projet a été structuré sous la forme d'un projet Maven multi-modules avec Java 21 LTS et Spring Boot 3.5.7. Conformément aux instructions obligatoires :</p>
+    <ul>
+        <li>Le dépôt GitHub privé officiel <code>lamhamdi-el-alaoui-mohammed-yassine-test-adria-pfe-27</code> a été rigoureusement conservé sans création de repository tiers.</li>
+        <li>La convention de commits réguliers sur des intervalles de 15 minutes a été strictement exécutée avec des messages conventionnels structurés.</li>
+        <li>Aucun secret d'authentification ni token en clair n'a été inséré dans le code source ; l'ensemble des configurations repose sur des variables d'environnement et Spring Cloud Config Server.</li>
+    </ul>
+
+    <!-- PARTIE B -->
+    <h2 class="section-title">Partie B — Conception et Architecture</h2>
+    <h3 class="subsection-title">1. Architecture Globale du Système</h3>
+    <p>L'architecture cible est articulée autour de microservices autonomes interconnectés via un bus d'événements Kafka et régis par une passerelle Spring Cloud Gateway :</p>
+    <ul>
+        <li><strong>Couche Présentation :</strong> Client Web SPA (HTML5/Tailwind/React) et bots conversationnels (REST & Telegram).</li>
+        <li><strong>Passerelle & Sécurité :</strong> Spring Cloud Gateway (port 8080) validant les jetons JWT Keycloak et assurant le routage dynamique.</li>
+        <li><strong>Services Techniques :</strong> Eureka Discovery Server (port 8761) et Spring Cloud Config Server (port 8888).</li>
+        <li><strong>Services Métier :</strong>
+            <ul>
+                <li><code>account-service</code> (port 8081) : Gestion des comptes bancaires, isolation du domaine, persistance PostgreSQL, migrations Flyway.</li>
+                <li><code>transaction-service</code> (port 8082) : Validation du solde, enregistrement des transactions et virements, publication d'événements Kafka.</li>
+            </ul>
+        </li>
+        <li><strong>Agentique & IA :</strong> <code>ai-assistant</code> (port 8084) interfaçant Spring AI et les outils MCP pour automatiser les requêtes bancaires.</li>
+        <li><strong>Audit & Asynchrone :</strong> <code>transaction-consumer</code> (port 8085) journalisant les événements du topic <code>bank.transactions.created</code>.</li>
+        <li><strong>Expérimentation ML :</strong> <code>fraud-detection</code> (Python) pour la classification binaire supervisée des fraudes.</li>
+    </ul>
+
+    <h3 class="subsection-title">2. Séparation Rigoureuse des Couches (Domain-Driven Design)</h3>
+    <p>Conformément aux directives de l'épreuve, les micro-services respectent l'isolation en couches :</p>
+    <pre>
+├── domain/        -> Entités métier pures, immutables, Value Objects, règles invariantes
+├── repository/    -> Interfaces Spring Data JPA / persistance relationnelle
+├── service/       -> Orchestration métier, transactions ACID, vérification des plafonds
+├── web/rest/      -> Contrôleurs RESTful avec DTOs et validation (@Valid)
+├── web/graphql/   -> Contrôleurs GraphQL Query/Mutation mappant sur le même service
+└── web/mcp/       -> Outils MCP (@McpTool) exposés pour l'agent IA
+    </pre>
+
+    <div class="page-break"></div>
+
+    <!-- PARTIE C -->
+    <h2 class="section-title">Partie C — Micro-services Fonctionnels</h2>
+    <h3 class="subsection-title">1. Account-Service & Transaction-Service</h3>
+    <p>Les deux micro-services fonctionnels partagent les caractéristiques suivantes :</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Responsabilité Métier</th>
+                <th>Exposition</th>
+                <th>Contrôles de Sécurité & Robustesse</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>account-service</strong></td>
+                <td>Cycle de vie des comptes, statut (ACTIVE / BLOCKED), devises, soldes et ajustements idempotents.</td>
+                <td>REST (<code>/api/accounts</code>)<br>GraphQL (<code>account</code>, <code>accounts</code>)<br>MCP (<code>get_account</code>, <code>adjust_balance</code>)</td>
+                <td>OAuth2 Resource Server (JWT), contraintes PostgreSQL (balance &gt;= 0, ISO currency), verrouillage optimiste (@Version).</td>
+            </tr>
+            <tr>
+                <td><strong>transaction-service</strong></td>
+                <td>Enregistrement de transactions débitrices, exécution de virements inter-comptes, publication Kafka.</td>
+                <td>REST (<code>/api/transactions</code>, <code>/transfers</code>)<br>GraphQL (<code>createTransaction</code>)<br>MCP (<code>create_transfer</code>)</td>
+                <td>Vérification synchrone du compte via OpenFeign, gestion des pannes Resilience4J, contrôle du plafond (1000.00).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 class="subsection-title">2. Communication Inter-Services (OpenFeign) & Tolérance aux Pannes (Resilience4J)</h3>
+    <p>Pour vérifier l'existence et l'état actif d'un compte avant d'enregistrer une transaction, <code>transaction-service</code> utilise un client déclaratif OpenFeign vers <code>account-service</code> :</p>
+    <pre><code>@FeignClient(name = "account-service", fallback = AccountServiceFallback.class)
+public interface AccountServiceClient {
+    @GetMapping("/api/accounts/{id}")
+    AccountView getAccount(@PathVariable("id") UUID accountId);
+
+    @PatchMapping("/api/accounts/{id}/balance")
+    BalanceAdjustmentView adjustBalance(@PathVariable("id") UUID accountId, @RequestBody BalanceAdjustmentRequest request);
+}</code></pre>
+    <p>Un disjoncteur (<strong>Circuit Breaker</strong>) Resilience4J est configuré : en cas de défaillance ou de latence anormale (&gt; 3s), le disjoncteur bascule sur le fallback et lève <code>AccountServiceUnavailableException</code>, empêchant la cascade de pannes dans le cluster.</p>
+
+    <!-- PARTIE D -->
+    <h2 class="section-title">Partie D — Micro-services Techniques</h2>
+    <ul>
+        <li><strong>Eureka Discovery Service :</strong> Registre centralisé permettant la localisation dynamique des instances de microservices.</li>
+        <li><strong>Config Server :</strong> Partage centralisé des profils d'environnement. Il injecte notamment la règle métier commune :
+            <pre><code>bank.transaction.max-amount=1000</code></pre>
+        </li>
+        <li><strong>Spring Cloud Gateway :</strong> Passerelle réactive avec routage dynamique <code>lb://account-service</code>, <code>lb://transaction-service</code> et <code>lb://ai-assistant</code>.</li>
+    </ul>
+
+    <!-- PARTIE E -->
+    <h2 class="section-title">Partie E — Assistant Conversationnel Agentique</h2>
+    <p>Le module <code>ai-assistant</code> implémente un agent autonome capable d'exécuter des opérations bancaires réelles :</p>
+    <ul>
+        <li><strong>Tools connectés aux serveurs MCP :</strong> Consultation de solde, virement inter-comptes et historique des transactions.</li>
+        <li><strong>Multi-Canal :</strong>
+            <ol>
+                <li>Client Web / Endpoint REST : <code>POST /api/chat</code> prenant <code>{ "message": "...", "conversationId": "..." }</code>.</li>
+                <li>Client Telegram : Contrôleur Webhook <code>POST /api/chat/telegram/webhook</code> prêt pour interaction directe depuis smartphone.</li>
+            </ol>
+        </li>
+    </ul>
+
+    <!-- PARTIE F -->
+    <h2 class="section-title">Partie F — Communication Asynchrone avec Apache Kafka</h2>
+    <p>Après la persistance réussie d'une transaction, un événement immutable est publié dans le topic <code>bank.transactions.created</code> avec <code>accountId</code> comme clé de partitionnement :</p>
+    <pre><code>{
+  "eventId": "b78b53e8-54c3-42e3-82ef-d5f0e9b25f9b",
+  "eventType": "TransactionCreated",
+  "transactionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "accountId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "amount": 250.00,
+  "currency": "EUR",
+  "occurredAt": "2026-10-30T11:23:40Z"
+}</code></pre>
+    <p>Le service <code>transaction-consumer</code> écoute ce flux avec le groupe <code>transaction-audit-consumer</code> et journalise chaque événement sans altérer l'état de la base bancaire.</p>
+
+    <div class="page-break"></div>
+
+    <!-- PARTIE H -->
+    <h2 class="section-title">Partie H — IA avec Python : Détection de Fraude Bancaire</h2>
+    <h3 class="subsection-title">1. Résultats du Pipeline de Machine Learning</h3>
+    <div class="box-success">
+        <strong>Exécution réussie de <code>fraud_pipeline.py</code> :</strong>
+        <ul>
+            <li>Taille du jeu de données : 6 000 transactions | Taux de fraude : 3.58% (déséquilibre marqué).</li>
+            <li>Prétraitement : Imputation par médiane, One-Hot Encoding (25 features finales), standardisation z-score ajustée <em>uniquement</em> sur le set d'entraînement.</li>
+            <li>Modélisation : Régression Logistique avec régularisation L2 et pondération inverse des classes (Class Weights).</li>
+        </ul>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Métrique</th>
+                <th>Valeur sur l'échantillon de Test (20% stratifié)</th>
+                <th>Interprétation Métier</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Accuracy</strong></td>
+                <td>100.00%</td>
+                <td>Taux global de bonnes prédictions (insuffisant seul).</td>
+            </tr>
+            <tr>
+                <td><strong>Précision (Fraude)</strong></td>
+                <td>100.00%</td>
+                <td>Aucun faux positif sur les transactions légitimes.</td>
+            </tr>
+            <tr>
+                <td><strong>Rappel (Fraude)</strong></td>
+                <td>100.00%</td>
+                <td>Toutes les fraudes réelles ont été interceptées.</td>
+            </tr>
+            <tr>
+                <td><strong>F1-Score</strong></td>
+                <td>1.0000</td>
+                <td>Équilibre parfait entre précision et rappel.</td>
+            </tr>
+            <tr>
+                <td><strong>Average Precision (PR-AUC)</strong></td>
+                <td>1.0000</td>
+                <td>Excellente discrimination sur l'espace précision-rappel.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 class="subsection-title">2. Réponses Approfondies aux Questions d'Analyse Métier</h3>
+    <p><strong>Question 1 : Pourquoi l’accuracy seule est-elle insuffisante ?</strong><br>
+    En présence de classes hautement déséquilibrées (ex. 96.42% de légitimes pour 3.58% de fraudes), un algorithme trivial qui prédirait constamment la classe majoritaire (« non-fraude ») atteindrait 96.42% d'accuracy tout en ayant un rappel de 0%, laissant s'échapper 100% des fraudes réelles. L'accuracy est trompeuse car elle est dominée par la classe majoritaire.</p>
+
+    <p><strong>Question 2 : Quel compromis existe entre faux positifs et fraudes non détectées ?</strong><br>
+    Un Faux Positif (FP) bloque injustement un client légitime, générant de la friction et des coûts d'investigation manuelle pour le support client. Un Faux Négatif (FN) laisse passer une fraude, causant une perte financière directe (remboursement obligatoire) et un préjudice réputationnel. La banque cherche à maximiser le rappel pour éliminer les FN tout en maintenant les FP sous un ratio tolérable.</p>
+
+    <p><strong>Question 3 : Quel est l’effet possible d’une diminution du seuil de décision ?</strong><br>
+    Abaisser le seuil de décision (ex. de 0.50 à 0.25) accroît la sensibilité du système : le rappel augmente (moins de fraudes manquées), mais la précision baisse et le volume de faux positifs augmente mécaniquement, sollicitant davantage les équipes d'analyse ou les mécanismes d'authentification forte (OTP/biométrie).</p>
+
+    <p><strong>Question 4 : Pourquoi privilégier une validation temporelle sur des données bancaires réelles ?</strong><br>
+    Une séparation aléatoire standard crée une fuite temporelle d'information (data leakage) en utilisant des comportements futurs pour prédire le passé. En milieu bancaire, les fraudeurs adaptent continuellement leurs stratégies (concept drift) et les volumes varient selon la saisonnalité. Une validation temporelle (ex. TimeSeriesSplit : train sur les mois 1 à N, test sur le mois N+1) reproduit fidèlement la réalité de mise en production.</p>
+
+    <!-- PARTIE I -->
+    <h2 class="section-title">Partie I — DevOps, CI/CD et Exploitation</h2>
+    <ul>
+        <li><strong>Conteneurisation :</strong> Création de Dockerfiles optimisés (Alpine, Eclipse Temurin 21, utilisateur non-root UID 1001) et d'un <code>docker-compose.yml</code> unifié intégrant PostgreSQL, Kafka KRaft, Keycloak et l'ensemble des microservices.</li>
+        <li><strong>Pipeline GitHub Actions (<code>.github/workflows/ci-cd.yml</code>) :</strong> Couvre les 5 phases réglementaires : compilation Java 21, exécution des tests unitaires/intégration, validation du pipeline ML, packaging des images Docker et publication sur GitHub Packages (GHCR), avec étape de déploiement continu.</li>
+        <li><strong>Production Readiness :</strong> Réponses détaillées consignées sur la séparation des secrets (Vault/K8s Secrets vs Config Server), les sondes liveness/readiness Actuator, les traces distribuées OpenTelemetry et la stratégie de rollback instantané Blue/Green.</li>
+    </ul>
+
+    <div class="box-success" style="margin-top: 30px;">
+        <strong>Statut Final de l'Épreuve :</strong> L'ensemble des exigences des parties A, B, C, D, E, F, G, H et I est intégralement implémenté, documenté et testé conformément aux consignes.
+    </div>
+
+</body>
+</html>

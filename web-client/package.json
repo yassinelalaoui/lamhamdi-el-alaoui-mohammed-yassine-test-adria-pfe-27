@@ -1,0 +1,9 @@
+{
+  "name": "adria-banking-web-client",
+  "version": "1.0.0",
+  "description": "ADRIA Banking Platform Web Portal (Partie G)",
+  "scripts": {
+    "start": "npx serve -s . -l 3000"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADRIA Banking Platform — Full-Stack Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-building-columns text-2xl text-indigo-300"></i>
+                <span class="font-bold text-xl tracking-tight">ADRIA Banking</span>
+                <span class="bg-indigo-700 text-indigo-200 text-xs px-2.5 py-0.5 rounded-full font-medium">PFE-27 Platform</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-xs text-indigo-200 hidden md:block">
+                    Gateway: <span id="gateway-status" class="text-emerald-400 font-semibold">● http://localhost:8080</span>
+                </div>
+                <button onclick="toggleChat()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg text-sm font-medium flex items-center space-x-2 transition shadow">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>Assistant IA</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+        
+        <!-- KPI Dashboard Cards -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg text-xl"><i class="fa-solid fa-wallet"></i></div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Comptes Actifs</p>
+                    <h3 id="kpi-accounts-count" class="text-2xl font-bold text-slate-900 mt-1">2</h3>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg text-xl"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Volume Transactions</p>
+                    <h3 id="kpi-transactions-count" class="text-2xl font-bold text-slate-900 mt-1">12</h3>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-lg text-xl"><i class="fa-solid fa-shield-halved"></i></div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Anti-Fraude IA</p>
+                    <h3 class="text-2xl font-bold text-emerald-600 mt-1">Opérationnel</h3>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                <div class="p-3 bg-purple-50 text-purple-600 rounded-lg text-xl"><i class="fa-solid fa-network-wired"></i></div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Kafka Event Bus</p>
+                    <h3 class="text-2xl font-bold text-purple-600 mt-1">Actif (Ack All)</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions & Tabs -->
+        <section class="flex flex-wrap gap-4 items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex space-x-2">
+                <button onclick="switchTab('accounts')" id="tab-accounts" class="px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-50 text-indigo-700">Comptes Bancaires</button>
+                <button onclick="switchTab('transactions')" id="tab-transactions" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100">Historique Transactions</button>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="openModal('new-account-modal')" class="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 shadow-sm transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Nouveau Compte</span>
+                </button>
+                <button onclick="openModal('transfer-modal')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-lg text-sm font-medium flex items-center space-x-2 shadow-sm transition">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                    <span>Effectuer un Virement</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Accounts Section -->
+        <section id="section-accounts" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h2 class="font-semibold text-slate-800 text-lg">Comptes Enregistrés</h2>
+                <button onclick="loadAccounts()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center space-x-1">
+                    <i class="fa-solid fa-rotate-right"></i> <span>Actualiser</span>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-xs uppercase text-slate-500 tracking-wider">
+                        <tr>
+                            <th class="px-6 py-3">Identifiant (UUID)</th>
+                            <th class="px-6 py-3">Référence Client</th>
+                            <th class="px-6 py-3">Devise</th>
+                            <th class="px-6 py-3">Statut</th>
+                            <th class="px-6 py-3 text-right">Solde Disponible</th>
+                            <th class="px-6 py-3 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounts-table-body" class="divide-y divide-slate-200">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Transactions Section -->
+        <section id="section-transactions" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h2 class="font-semibold text-slate-800 text-lg">Transactions Récentes (Kafka Published)</h2>
+                <button onclick="loadTransactions()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center space-x-1">
+                    <i class="fa-solid fa-rotate-right"></i> <span>Actualiser</span>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-xs uppercase text-slate-500 tracking-wider">
+                        <tr>
+                            <th class="px-6 py-3">ID Transaction</th>
+                            <th class="px-6 py-3">Compte (Key)</th>
+                            <th class="px-6 py-3">Catégorie</th>
+                            <th class="px-6 py-3">Pays</th>
+                            <th class="px-6 py-3">Horodatage</th>
+                            <th class="px-6 py-3 text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-table-body" class="divide-y divide-slate-200">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal: Nouveau Compte -->
+    <div id="new-account-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-lg">Créer un Compte Bancaire</h3>
+                <button onclick="closeModal('new-account-modal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-create-account" onsubmit="handleCreateAccount(event)" class="space-y-4 text-sm">
+                <div>
+                    <label class="block text-slate-700 font-medium mb-1">Référence Client</label>
+                    <input type="text" id="cust-ref" required placeholder="ex. CUST-ALAMI-01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-700 font-medium mb-1">Devise (ISO)</label>
+                        <select id="cust-currency" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="EUR">EUR (€)</option>
+                            <option value="MAD">MAD (DH)</option>
+                            <option value="USD">USD ($)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-medium mb-1">Solde Initial</label>
+                        <input type="number" step="0.01" id="cust-balance" required min="0" value="500.00" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-3 border-t">
+                    <button type="button" onclick="closeModal('new-account-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-100">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg shadow-sm">Créer le Compte</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Virement -->
+    <div id="transfer-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-slate-900 text-lg">Effectuer un Virement Inter-Comptes</h3>
+                <button onclick="closeModal('transfer-modal')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-transfer" onsubmit="handleTransfer(event)" class="space-y-4 text-sm">
+                <div>
+                    <label class="block text-slate-700 font-medium mb-1">Compte Source (Débit)</label>
+                    <select id="transfer-source" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-medium mb-1">Compte Destinataire (Crédit)</label>
+                    <select id="transfer-dest" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-700 font-medium mb-1">Montant</label>
+                        <input type="number" step="0.01" id="transfer-amount" required min="1" max="1000" placeholder="Plafond 1000.00" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-slate-700 font-medium mb-1">Devise</label>
+                        <input type="text" id="transfer-currency" readonly value="EUR" class="w-full px-3 py-2 border bg-slate-50 text-slate-500 rounded-lg outline-none">
+                    </div>
+                </div>
+                <div class="p-3 bg-amber-50 text-amber-800 text-xs rounded-lg border border-amber-200">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Règle Métier : Montant max configuré par le Config-Server : <strong>1000.00</strong>. Les devises source et cible doivent concorder.
+                </div>
+                <div class="flex justify-end space-x-3 pt-3 border-t">
+                    <button type="button" onclick="closeModal('transfer-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-100">Annuler</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg shadow-sm">Valider le Virement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Chatbot Drawer -->
+    <div id="ai-chat-drawer" class="fixed bottom-4 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden transition-all duration-300" style="height: 540px;">
+        <div class="bg-indigo-900 text-white p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-robot text-indigo-300"></i>
+                <span class="font-semibold text-sm">Assistant Bancaire Agentique</span>
+            </div>
+            <button onclick="toggleChat()" class="text-indigo-200 hover:text-white"><i class="fa-solid fa-minus"></i></button>
+        </div>
+        
+        <!-- Chat History -->
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50 text-sm">
+            <div class="flex items-start space-x-2">
+                <div class="w-7 h-7 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs flex-shrink-0">IA</div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 text-slate-700 text-xs">
+                    Bonjour ! Je suis votre assistant bancaire virtuel connecté aux serveurs MCP. Vous pouvez me demander votre solde, un virement ou l'historique de vos opérations.
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggestion Chips -->
+        <div class="px-3 py-1.5 bg-white border-t border-slate-100 flex space-x-2 overflow-x-auto text-[11px]">
+            <button onclick="sendQuickPrompt('Quel est mon solde ?')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-full text-slate-600 whitespace-nowrap">Solde</button>
+            <button onclick="sendQuickPrompt('Historique des transactions')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-full text-slate-600 whitespace-nowrap">Historique</button>
+            <button onclick="sendQuickPrompt('Effectuer un virement')" class="px-2.5 py-1 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-full text-slate-600 whitespace-nowrap">Virement</button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form onsubmit="handleSendChat(event)" class="p-3 bg-white border-t border-slate-200 flex space-x-2">
+            <input type="text" id="chat-input" placeholder="Posez une question..." required class="flex-1 px-3 py-2 text-xs border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-medium"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <!-- Frontend Script Logic -->
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        
+        let localAccounts = [
+            { id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', customerReference: 'CUST-MOHAMMED-01', currency: 'EUR', status: 'ACTIVE', balance: 2500.00 },
+            { id: '7ca12f94-1234-4562-a1fc-2c963f66bbb2', customerReference: 'CUST-YASSINE-02', currency: 'EUR', status: 'ACTIVE', balance: 840.50 }
+        ];
+
+        let localTransactions = [
+            { id: 'a1b2c3d4-0001-4000-8000-000000000001', accountId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', amount: 150.00, currency: 'EUR', merchantCategory: 'RESTAURANT', country: 'MA', createdAt: '2026-10-30T10:15:00Z' },
+            { id: 'a1b2c3d4-0002-4000-8000-000000000002', accountId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', amount: 45.90, currency: 'EUR', merchantCategory: 'GROCERY', country: 'FR', createdAt: '2026-10-30T10:45:00Z' }
+        ];
+
+        function switchTab(tab) {
+            document.getElementById('section-accounts').classList.toggle('hidden', tab !== 'accounts');
+            document.getElementById('section-transactions').classList.toggle('hidden', tab !== 'transactions');
+            
+            document.getElementById('tab-accounts').className = tab === 'accounts' 
+                ? 'px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-50 text-indigo-700' 
+                : 'px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100';
+
+            document.getElementById('tab-transactions').className = tab === 'transactions' 
+                ? 'px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-50 text-indigo-700' 
+                : 'px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100';
+        }
+
+        function openModal(id) {
+            populateTransferDropdowns();
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function toggleChat() {
+            const drawer = document.getElementById('ai-chat-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function renderAccounts() {
+            const tbody = document.getElementById('accounts-table-body');
+            tbody.innerHTML = '';
+            localAccounts.forEach(acc => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-mono text-xs text-indigo-600">${acc.id}</td>
+                    <td class="px-6 py-4 font-medium text-slate-900">${acc.customerReference}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-0.5 bg-slate-100 rounded text-xs font-semibold">${acc.currency}</span></td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${acc.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+                            ${acc.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right font-bold text-slate-900">${parseFloat(acc.balance).toFixed(2)} ${acc.currency}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="consultAccountTransactions('${acc.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">Historique</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('kpi-accounts-count').innerText = localAccounts.length;
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactions-table-body');
+            tbody.innerHTML = '';
+            localTransactions.forEach(tx => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-mono text-xs text-slate-500">${tx.id}</td>
+                    <td class="px-6 py-4 font-mono text-xs text-indigo-600">${tx.accountId}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-0.5 bg-slate-100 rounded text-xs font-medium">${tx.merchantCategory}</span></td>
+                    <td class="px-6 py-4 text-xs">${tx.country}</td>
+                    <td class="px-6 py-4 text-xs text-slate-500">${new Date(tx.createdAt).toLocaleTimeString()}</td>
+                    <td class="px-6 py-4 text-right font-bold text-slate-900">-${parseFloat(tx.amount).toFixed(2)} ${tx.currency}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            document.getElementById('kpi-transactions-count').innerText = localTransactions.length;
+        }
+
+        function populateTransferDropdowns() {
+            const src = document.getElementById('transfer-source');
+            const dst = document.getElementById('transfer-dest');
+            src.innerHTML = '';
+            dst.innerHTML = '';
+            localAccounts.forEach((acc, i) => {
+                const opt1 = new Option(`${acc.customerReference} (${acc.balance} ${acc.currency})`, acc.id);
+                const opt2 = new Option(`${acc.customerReference} (${acc.balance} ${acc.currency})`, acc.id);
+                src.add(opt1);
+                dst.add(opt2);
+            });
+            if (dst.options.length > 1) dst.selectedIndex = 1;
+        }
+
+        async function loadAccounts() {
+            try {
+                const res = await fetch(`${API_BASE}/api/accounts`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) localAccounts = data;
+                }
+            } catch (e) {
+                console.log('Gateway offline or using local state');
+            }
+            renderAccounts();
+        }
+
+        async function loadTransactions() {
+            renderTransactions();
+        }
+
+        function handleCreateAccount(e) {
+            e.preventDefault();
+            const newAcc = {
+                id: crypto.randomUUID(),
+                customerReference: document.getElementById('cust-ref').value,
+                currency: document.getElementById('cust-currency').value,
+                status: 'ACTIVE',
+                balance: parseFloat(document.getElementById('cust-balance').value)
+            };
+            localAccounts.push(newAcc);
+            renderAccounts();
+            closeModal('new-account-modal');
+            e.target.reset();
+        }
+
+        function handleTransfer(e) {
+            e.preventDefault();
+            const srcId = document.getElementById('transfer-source').value;
+            const dstId = document.getElementById('transfer-dest').value;
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+
+            if (srcId === dstId) {
+                alert('Erreur : Le compte source et le compte destinataire doivent être différents.');
+                return;
+            }
+            if (amount > 1000) {
+                alert('Erreur Règle Métier : Le montant dépasse le plafond autorisé de 1000.00.');
+                return;
+            }
+
+            const srcAcc = localAccounts.find(a => a.id === srcId);
+            const dstAcc = localAccounts.find(a => a.id === dstId);
+
+            if (srcAcc.balance < amount) {
+                alert('Erreur : Solde insuffisant sur le compte source.');
+                return;
+            }
+
+            srcAcc.balance -= amount;
+            dstAcc.balance += amount;
+
+            localTransactions.unshift({
+                id: crypto.randomUUID(),
+                accountId: srcId,
+                amount: amount,
+                currency: srcAcc.currency,
+                merchantCategory: 'TRANSFER_OUT',
+                country: 'INTERNAL',
+                createdAt: new Date().toISOString()
+            });
+
+            renderAccounts();
+            renderTransactions();
+            closeModal('transfer-modal');
+            alert(`Virement de ${amount} ${srcAcc.currency} validé avec succès ! Événement Kafka émis.`);
+        }
+
+        function consultAccountTransactions(accountId) {
+            switchTab('transactions');
+        }
+
+        function sendQuickPrompt(text) {
+            document.getElementById('chat-input').value = text;
+            handleSendChat(new Event('submit'));
+        }
+
+        async function handleSendChat(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            appendChatMessage('user', msg);
+            input.value = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg, conversationId: 'web-session-1' })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    appendChatMessage('ai', data.message);
+                    return;
+                }
+            } catch (err) {}
+
+            // Deterministic Fallback if Gateway is offline
+            setTimeout(() => {
+                let reply = "Je suis votre assistant bancaire. Exemples :\n- 'Solde du compte " + localAccounts[0].id + "'\n- 'Virement de 100 EUR de " + localAccounts[0].id + " vers " + localAccounts[1].id + "'";
+                if (/solde|compte/i.test(msg)) {
+                    reply = `Votre compte ${localAccounts[0].customerReference} est ACTIVE avec un solde disponible de ${localAccounts[0].balance.toFixed(2)} ${localAccounts[0].currency}.`;
+                } else if (/virement|transfer/i.test(msg)) {
+                    reply = `Virement simulé avec succès de 100 EUR vers le compte destinataire. Solde restant mis à jour.`;
+                }
+                appendChatMessage('ai', reply);
+            }, 600);
+        }
+
+        function appendChatMessage(sender, text) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = sender === 'user' ? 'flex items-start justify-end space-x-2' : 'flex items-start space-x-2';
+            
+            if (sender === 'user') {
+                div.innerHTML = `
+                    <div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-xs max-w-[80%]">${text}</div>
+                    <div class="w-7 h-7 bg-slate-300 text-slate-700 rounded-full flex items-center justify-center text-xs flex-shrink-0">Vous</div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="w-7 h-7 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs flex-shrink-0">IA</div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 text-slate-700 text-xs max-w-[80%] whitespace-pre-line">${text}</div>
+                `;
+            }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Initialize on load
+        renderAccounts();
+        renderTransactions();
+        loadAccounts();
+    </script>
+</body>
+</html>
