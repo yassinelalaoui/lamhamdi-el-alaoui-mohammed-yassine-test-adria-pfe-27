@@ -1,7 +1,13 @@
 package service;
 
+import domain.AccountNotActiveException;
+import domain.AccountNotFoundException;
 import domain.AccountServiceUnavailableException;
+import domain.CurrencyMismatchException;
+import domain.InsufficientBalanceException;
+import domain.InvalidAmountException;
 import domain.InvalidTransactionException;
+import domain.MaxAmountExceededException;
 import domain.Transaction;
 import domain.TransactionCreatedEvent;
 import domain.TransactionNotFoundException;
@@ -12,6 +18,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +28,26 @@ import repository.TransactionRepository;
 import web.client.AccountServiceClient;
 
 /**
- * Core business logic for creating and consulting transactions.
+ * Service métier central pour la gestion des transactions bancaires.
  *
- * <p>Business rules enforced:
- * <ul>
- *   <li>Amount must be strictly positive and within the configured maximum.</li>
- *   <li>The account must exist and be ACTIVE (verified via OpenFeign → account-service).</li>
- *   <li>Transaction currency must match the account currency.</li>
- *   <li>Balance is updated atomically in account-service after the transaction is persisted.</li>
- *   <li>A Kafka event is published after successful persistence.</li>
- * </ul>
+ * <p>Ce service unique est partagé par les contrôleurs REST, GraphQL et les outils MCP.
+ *
+ * <p>Règles métier strictement appliquées :
+ * <ol>
+ *   <li>Le montant doit être strictement positif.</li>
+ *   <li>Le montant ne doit pas dépasser le plafond configuré (ex. 1000).</li>
+ *   <li>Le compte doit exister (vérification via OpenFeign vers account-service).</li>
+ *   <li>Le compte doit être ACTIVE.</li>
+ *   <li>La devise doit correspondre à celle du compte.</li>
+ *   <li>Le solde doit être suffisant pour couvrir le montant.</li>
+ *   <li>Le solde est obligatoirement consulté avant tout enregistrement.</li>
+ *   <li>Après enregistrement, le solde du compte est débité de manière idempotente.</li>
+ *   <li>Si le débit échoue, la transaction est annulée (rollback) et rejetée.</li>
+ * </ol>
  */
 @Service
 public class TransactionService {
+    private static final Logger log = LoggerFactory.getLogger(TransactionService.class);
     private static final int MONEY_SCALE = 4;
     private static final Pattern CURRENCY_PATTERN = Pattern.compile("[A-Z]{3}");
 
@@ -52,171 +67,218 @@ public class TransactionService {
         this.maxAmount = maxAmount;
     }
 
+    /**
+     * Crée et enregistre une transaction unitaire après validation complète.
+     */
     @Transactional
     public Transaction createTransaction(CreateTransactionCommand command) {
         if (command == null) {
-            throw new InvalidTransactionException("Transaction details are required.");
+            throw new InvalidTransactionException("Les données de transaction sont obligatoires.");
         }
 
-        UUID accountId = requireAccountId(command.accountId());
-        BigDecimal amount = normalizeAmount(command.amount());
-        String currency = normalizeCurrency(command.currency());
-        String merchantCategory = requireText(command.merchantCategory(), "Merchant category");
-        String country = requireText(command.country(), "Country");
+        UUID accountId = requireNonNull(command.accountId(), "L'identifiant de compte");
+        BigDecimal amount = validateAndNormalizeAmount(command.amount());
+        String currency = validateAndNormalizeCurrency(command.currency());
+        String merchantCategory = requireText(command.merchantCategory(), "La catégorie du marchand");
+        String country = requireText(command.country(), "Le pays");
 
-        // Verify account existence and active status
+        // RÈGLE 3 & 7 : Consultation préalable du compte et de son solde via OpenFeign
         AccountServiceClient.AccountView account = fetchAccount(accountId);
-        assertAccountActive(account);
-        assertCurrencyMatches(account, currency);
 
+        // RÈGLE 4 : Le compte doit être ACTIVE
+        if (!"ACTIVE".equalsIgnoreCase(account.status())) {
+            throw new AccountNotActiveException(accountId, account.status());
+        }
+
+        // RÈGLE 5 : La devise de la transaction doit correspondre à celle du compte
+        if (!account.currency().equalsIgnoreCase(currency)) {
+            throw new CurrencyMismatchException(currency, account.currency());
+        }
+
+        // RÈGLE 6 : Le solde doit être suffisant
+        if (account.balance() == null || account.balance().compareTo(amount) < 0) {
+            throw new InsufficientBalanceException(accountId, account.balance(), amount);
+        }
+
+        // Enregistrement de la transaction
         Instant now = Instant.now();
         Transaction transaction = new Transaction(accountId, amount, currency, merchantCategory, country, now);
         transaction = transactionRepository.save(transaction);
+        log.info("Transaction persistée [id={}, accountId={}, amount={} {}]",
+                transaction.getId(), accountId, amount, currency);
 
-        // Update balance in account-service (DEBIT – funds leave the account)
+        // RÈGLE 8 & 9 : Débit du solde avec clé d'idempotence (ID de la transaction)
         AccountServiceClient.BalanceAdjustmentRequest adjustment =
                 new AccountServiceClient.BalanceAdjustmentRequest(
                         transaction.getId(), "DEBIT", amount, currency);
+
         try {
             accountServiceClient.adjustBalance(accountId, adjustment);
-        } catch (AccountServiceUnavailableException exception) {
-            // Propagate: the transaction has been saved but balance update failed.
-            // The Kafka event will not be published in this case.
-            throw exception;
+            log.info("Solde débité avec succès pour le compte [id={}, txId={}]", accountId, transaction.getId());
+        } catch (Exception ex) {
+            // RÈGLE 9 : Si le débit échoue, la transaction est annulée (rollback)
+            log.error("Échec du débit du compte {}. Annulation de la transaction {}.",
+                    accountId, transaction.getId(), ex);
+            transactionRepository.delete(transaction);
+            if (ex instanceof AccountServiceUnavailableException) {
+                throw ex;
+            }
+            throw new AccountServiceUnavailableException(
+                    "Échec de mise à jour du solde auprès du service de comptes : " + ex.getMessage(), ex);
         }
 
+        // Publication de l'événement Kafka
         eventPublisher.publish(TransactionCreatedEvent.from(transaction));
+
         return transaction;
     }
 
+    /**
+     * Consultation d'une transaction par son identifiant unique.
+     */
     @Transactional(readOnly = true)
     public Transaction getTransaction(UUID transactionId) {
         return transactionRepository
-                .findById(requireNonNull(transactionId, "Transaction ID"))
+                .findById(requireNonNull(transactionId, "L'identifiant de transaction"))
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId));
     }
 
+    /**
+     * Consultation de l'ensemble des transactions (triées par date décroissante).
+     */
     @Transactional(readOnly = true)
-    public List<Transaction> getTransactionsByAccount(UUID accountId) {
-        return transactionRepository.findAllByAccountIdOrderByCreatedAtDesc(
-                requireNonNull(accountId, "Account ID"));
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
     }
 
     /**
-     * Transfer: debit source account, credit destination account.
-     *
-     * <p>Both legs are executed sequentially. If the credit fails after a successful debit the
-     * caller should handle compensation (beyond exam scope — circuit-breaker fallback throws).
+     * Consultation de toutes les transactions associées à un compte donné.
+     */
+    @Transactional(readOnly = true)
+    public List<Transaction> getTransactionsByAccount(UUID accountId) {
+        return transactionRepository.findAllByAccountIdOrderByCreatedAtDesc(
+                requireNonNull(accountId, "L'identifiant de compte"));
+    }
+
+    /**
+     * Virement inter-comptes avec double débit/crédit et validation.
      */
     @Transactional
     public List<Transaction> createTransfer(CreateTransferCommand command) {
         if (command == null) {
-            throw new InvalidTransactionException("Transfer details are required.");
+            throw new InvalidTransactionException("Les données du virement sont obligatoires.");
         }
 
-        UUID sourceId = requireAccountId(command.sourceAccountId());
-        UUID destinationId = requireAccountId(command.destinationAccountId());
+        UUID sourceId = requireNonNull(command.sourceAccountId(), "Le compte source");
+        UUID destinationId = requireNonNull(command.destinationAccountId(), "Le compte destinataire");
         if (sourceId.equals(destinationId)) {
-            throw new InvalidTransactionException("Source and destination accounts must differ.");
+            throw new InvalidTransactionException("Le compte source et le compte destinataire doivent être différents.");
         }
 
-        BigDecimal amount = normalizeAmount(command.amount());
-        String currency = normalizeCurrency(command.currency());
+        BigDecimal amount = validateAndNormalizeAmount(command.amount());
+        String currency = validateAndNormalizeCurrency(command.currency());
 
         AccountServiceClient.AccountView source = fetchAccount(sourceId);
         AccountServiceClient.AccountView destination = fetchAccount(destinationId);
-        assertAccountActive(source);
-        assertAccountActive(destination);
-        assertCurrencyMatches(source, currency);
-        assertCurrencyMatches(destination, currency);
+
+        if (!"ACTIVE".equalsIgnoreCase(source.status())) {
+            throw new AccountNotActiveException(sourceId, source.status());
+        }
+        if (!"ACTIVE".equalsIgnoreCase(destination.status())) {
+            throw new AccountNotActiveException(destinationId, destination.status());
+        }
+        if (!source.currency().equalsIgnoreCase(currency)) {
+            throw new CurrencyMismatchException(currency, source.currency());
+        }
+        if (!destination.currency().equalsIgnoreCase(currency)) {
+            throw new CurrencyMismatchException(currency, destination.currency());
+        }
+        if (source.balance().compareTo(amount) < 0) {
+            throw new InsufficientBalanceException(sourceId, source.balance(), amount);
+        }
 
         Instant now = Instant.now();
-        Transaction debit = transactionRepository.save(
+        Transaction debitTx = transactionRepository.save(
                 new Transaction(sourceId, amount, currency, "TRANSFER_OUT", "INTERNAL", now));
-        Transaction credit = transactionRepository.save(
+        Transaction creditTx = transactionRepository.save(
                 new Transaction(destinationId, amount, currency, "TRANSFER_IN", "INTERNAL", now));
 
-        // Debit source
+        // Débit source
         accountServiceClient.adjustBalance(
                 sourceId,
-                new AccountServiceClient.BalanceAdjustmentRequest(debit.getId(), "DEBIT", amount, currency));
+                new AccountServiceClient.BalanceAdjustmentRequest(debitTx.getId(), "DEBIT", amount, currency));
 
-        // Credit destination
+        // Crédit destination
         accountServiceClient.adjustBalance(
                 destinationId,
-                new AccountServiceClient.BalanceAdjustmentRequest(credit.getId(), "CREDIT", amount, currency));
+                new AccountServiceClient.BalanceAdjustmentRequest(creditTx.getId(), "CREDIT", amount, currency));
 
-        eventPublisher.publish(TransactionCreatedEvent.from(debit));
-        eventPublisher.publish(TransactionCreatedEvent.from(credit));
-        return List.of(debit, credit);
+        eventPublisher.publish(TransactionCreatedEvent.from(debitTx));
+        eventPublisher.publish(TransactionCreatedEvent.from(creditTx));
+
+        return List.of(debitTx, creditTx);
     }
 
-    // ---- helpers ----
+    // ---- Méthodes de validation et normalisation privées ----
 
     private AccountServiceClient.AccountView fetchAccount(UUID accountId) {
         try {
-            return accountServiceClient.getAccount(accountId);
-        } catch (AccountServiceUnavailableException exception) {
-            throw exception;
+            AccountServiceClient.AccountView view = accountServiceClient.getAccount(accountId);
+            if (view == null) {
+                throw new AccountNotFoundException(accountId);
+            }
+            return view;
+        } catch (AccountNotFoundException ex) {
+            throw ex;
+        } catch (AccountServiceUnavailableException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            if (ex.getMessage() != null && ex.getMessage().contains("404")) {
+                throw new AccountNotFoundException(accountId);
+            }
+            throw new AccountServiceUnavailableException(
+                    "Impossible de joindre Account-Service pour le compte " + accountId + " : " + ex.getMessage(), ex);
         }
     }
 
-    private void assertAccountActive(AccountServiceClient.AccountView account) {
-        if (!"ACTIVE".equals(account.status())) {
-            throw new InvalidTransactionException("Account " + account.id() + " is not active.");
-        }
-    }
-
-    private void assertCurrencyMatches(AccountServiceClient.AccountView account, String currency) {
-        if (!account.currency().equals(currency)) {
-            throw new InvalidTransactionException(
-                    "Transaction currency " + currency + " does not match account currency " + account.currency() + ".");
-        }
-    }
-
-    private UUID requireAccountId(UUID accountId) {
-        return requireNonNull(accountId, "Account ID");
-    }
-
-    private <T> T requireNonNull(T value, String label) {
-        if (value == null) {
-            throw new InvalidTransactionException(label + " is required.");
-        }
-        return value;
-    }
-
-    private BigDecimal normalizeAmount(BigDecimal amount) {
+    private BigDecimal validateAndNormalizeAmount(BigDecimal amount) {
         if (amount == null || amount.signum() <= 0) {
-            throw new InvalidTransactionException("Amount must be strictly positive.");
+            throw new InvalidAmountException(amount);
         }
         BigDecimal scaled;
         try {
             scaled = amount.setScale(MONEY_SCALE, RoundingMode.UNNECESSARY);
-        } catch (ArithmeticException exception) {
-            throw new InvalidTransactionException("Amount supports at most four decimal places.", exception);
+        } catch (ArithmeticException ex) {
+            throw new InvalidAmountException("Le montant autorise au maximum 4 décimales.");
         }
         if (scaled.compareTo(maxAmount.setScale(MONEY_SCALE)) > 0) {
-            throw new InvalidTransactionException(
-                    "Amount " + amount + " exceeds the configured maximum of " + maxAmount + ".");
+            throw new MaxAmountExceededException(amount, maxAmount);
         }
         return scaled;
     }
 
-    private String normalizeCurrency(String currency) {
+    private String validateAndNormalizeCurrency(String currency) {
         if (!StringUtils.hasText(currency)) {
-            throw new InvalidTransactionException("Currency is required.");
+            throw new InvalidTransactionException("La devise est obligatoire.");
         }
         String normalized = currency.trim().toUpperCase(Locale.ROOT);
         if (!CURRENCY_PATTERN.matcher(normalized).matches()) {
-            throw new InvalidTransactionException("Currency must be a three-letter ISO code.");
+            throw new InvalidTransactionException("La devise doit être un code ISO à 3 lettres majuscules (ex. EUR, USD).");
         }
         return normalized;
     }
 
     private String requireText(String value, String label) {
         if (!StringUtils.hasText(value)) {
-            throw new InvalidTransactionException(label + " is required.");
+            throw new InvalidTransactionException(label + " est obligatoire.");
         }
         return value.trim();
+    }
+
+    private <T> T requireNonNull(T value, String label) {
+        if (value == null) {
+            throw new InvalidTransactionException(label + " est obligatoire.");
+        }
+        return value;
     }
 }

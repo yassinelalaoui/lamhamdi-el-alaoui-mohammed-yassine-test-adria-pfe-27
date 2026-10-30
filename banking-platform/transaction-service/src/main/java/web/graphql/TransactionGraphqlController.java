@@ -26,6 +26,11 @@ public class TransactionGraphqlController {
     }
 
     @QueryMapping
+    public List<Transaction> transactions() {
+        return transactionService.getAllTransactions();
+    }
+
+    @QueryMapping
     public List<Transaction> transactionsByAccount(@Argument("accountId") String accountId) {
         return transactionService.getTransactionsByAccount(UUID.fromString(accountId));
     }

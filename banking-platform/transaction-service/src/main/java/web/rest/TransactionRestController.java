@@ -24,6 +24,9 @@ public class TransactionRestController {
         this.transactionService = transactionService;
     }
 
+    /**
+     * Enregistrement d'une nouvelle transaction bancaire.
+     */
     @PostMapping
     public ResponseEntity<TransactionResponse> createTransaction(
             @Valid @RequestBody CreateTransactionRequest request) {
@@ -32,19 +35,41 @@ public class TransactionRestController {
                 .body(TransactionResponse.from(transaction));
     }
 
+    /**
+     * Consultation d'une transaction par son ID.
+     */
     @GetMapping("/{id}")
-    public TransactionResponse getTransaction(@PathVariable("id") UUID id) {
-        return TransactionResponse.from(transactionService.getTransaction(id));
+    public ResponseEntity<TransactionResponse> getTransaction(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(TransactionResponse.from(transactionService.getTransaction(id)));
     }
 
+    /**
+     * Consultation de l'ensemble des transactions (avec filtre optionnel accountId).
+     */
     @GetMapping
-    public List<TransactionResponse> getTransactionsByAccount(
-            @RequestParam("accountId") UUID accountId) {
-        return transactionService.getTransactionsByAccount(accountId).stream()
+    public ResponseEntity<List<TransactionResponse>> getAllTransactions(
+            @RequestParam(value = "accountId", required = false) UUID accountId) {
+        List<Transaction> transactions = (accountId != null)
+                ? transactionService.getTransactionsByAccount(accountId)
+                : transactionService.getAllTransactions();
+        return ResponseEntity.ok(transactions.stream().map(TransactionResponse::from).toList());
+    }
+
+    /**
+     * Consultation de toutes les transactions d'un compte spécifique.
+     */
+    @GetMapping("/account/{accountId}")
+    public ResponseEntity<List<TransactionResponse>> getTransactionsByAccount(
+            @PathVariable("accountId") UUID accountId) {
+        List<TransactionResponse> list = transactionService.getTransactionsByAccount(accountId).stream()
                 .map(TransactionResponse::from)
                 .toList();
+        return ResponseEntity.ok(list);
     }
 
+    /**
+     * Exécution d'un virement entre deux comptes.
+     */
     @PostMapping("/transfers")
     public ResponseEntity<List<TransactionResponse>> createTransfer(
             @Valid @RequestBody CreateTransferRequest request) {

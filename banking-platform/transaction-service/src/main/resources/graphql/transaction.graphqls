@@ -25,6 +25,7 @@ input CreateTransferInput {
 
 type Query {
     transaction(id: ID!): Transaction!
+    transactions: [Transaction!]!
     transactionsByAccount(accountId: ID!): [Transaction!]!
 }
 
