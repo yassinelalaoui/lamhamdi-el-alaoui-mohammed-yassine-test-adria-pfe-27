@@ -7,3 +7,4 @@ public class MaxAmountExceededException extends RuntimeException {
         super(String.format("Le montant %s dépasse le plafond configuré de %s.", amount, maxAmount));
     }
 }
+

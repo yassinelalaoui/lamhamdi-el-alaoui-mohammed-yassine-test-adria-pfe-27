@@ -20,3 +20,4 @@ public class AccountNotActiveException extends RuntimeException {
         return status;
     }
 }
+

@@ -123,3 +123,4 @@ class TransactionRestControllerTest {
                 .andExpect(jsonPath("$.title").value("Solde insuffisant"));
     }
 }
+

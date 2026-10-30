@@ -9,3 +9,4 @@ public class InsufficientBalanceException extends RuntimeException {
                 accountId, balance, requestedAmount));
     }
 }
+

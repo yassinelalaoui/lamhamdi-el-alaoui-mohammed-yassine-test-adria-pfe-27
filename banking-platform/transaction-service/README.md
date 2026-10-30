@@ -114,3 +114,4 @@ La suite `TransactionServiceTest` couvre l'ensemble des cas d'évaluation :
 6. `testCurrencyMismatch` : Incompatibilité de devise (400).
 7. `testInsufficientBalance` : Solde insuffisant (400).
 8. `testAccountServiceCommunicationError` : Déclenchement du fallback Resilience4J (503).
+
