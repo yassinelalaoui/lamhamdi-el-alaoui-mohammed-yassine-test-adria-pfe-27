@@ -11,7 +11,7 @@ Ce registre ne contient que les informations verifiees dans le depot ou par exec
 | Parties A restantes | A preciser | Le detail du sujet n'est pas present dans le depot | Reporter les criteres officiels |
 | B1 — Diagramme de classes UML | Termine | Source PlantUML, export SVG (1769 x 750) et choix de conception | Export PlantUML 1.2025.10 valide; verifier le modele avec le sujet officiel avant implementation |
 | B2 — Architecture technique et flux | Termine (conception) | Diagramme PlantUML/SVG/PNG, description des six flux et choix architecturaux | Confirmer les hypotheses de transport, fournisseur LLM, stockage et integration Python avant implementation |
-| Account-Service | Termine localement | CRUD autorise, statut, ajustements de solde idempotents, REST/GraphQL/MCP, migration PostgreSQL et documentation API | `mvn -pl account-service -am clean verify` : 18 tests passent avec H2; PostgreSQL reel non teste faute de Docker |
+| Account-Service | Implémentation terminée; validation PostgreSQL en attente | CRUD autorisé, ajustements idempotents, REST/GraphQL/MCP, migration PostgreSQL, documentation API; 2 tests Testcontainers 2.0.5 ajoutés | 18 tests H2 précédemment réussis; dernier `clean verify` PostgreSQL annulé avant résultat, donc tests PostgreSQL non confirmés |
 | B restant et C a I | A preciser | Aucun descriptif detaille disponible dans le depot | Ajouter le perimetre avant d'evaluer l'avancement |
 
 ## Journal des executions

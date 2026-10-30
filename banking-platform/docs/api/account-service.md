@@ -96,10 +96,16 @@ The endpoint requires a valid JWT and the same account-read policy. It is intent
 
 ## Tests
 
-Run all module tests and compile its reactor prerequisites from the workspace root:
+The unit and H2-backed REST/GraphQL integration suites previously passed 18 tests. A separate `AccountPostgresIntegrationTest` has since been added with Testcontainers 2.0.5 to exercise the Flyway migration and concurrent balance updates against PostgreSQL 16. Its latest `clean verify` invocation was cancelled before a result was recorded, so the PostgreSQL tests are pending verification and must not be counted as passing.
+
+Docker Desktop 4.97.0 and Engine 29.9.2 are installed locally. The Docker CLI is available at `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin\docker.exe`; the Docker Desktop Linux engine endpoint reported by its CLI is `npipe:////./pipe/dockerDesktopLinuxEngine`. On this Windows setup, set `DOCKER_HOST` for the Maven process before running the full tests:
 
 ```powershell
+$env:DOCKER_HOST = 'npipe:////./pipe/dockerDesktopLinuxEngine'
 mvn -pl account-service -am clean verify
+$testExitCode = $LASTEXITCODE
+Remove-Item Env:DOCKER_HOST -ErrorAction SilentlyContinue
+exit $testExitCode
 ```
 
-Tests use the H2 in-memory database in PostgreSQL compatibility mode because Docker was unavailable during implementation. The runtime schema and driver target PostgreSQL; validate the migration and locking behavior against a real PostgreSQL instance before deployment.
+The REST/GraphQL suite uses H2 in PostgreSQL compatibility mode. The PostgreSQL Testcontainers suite requires Docker and validates the real migration and locking behavior when it runs. The production runtime continues to use PostgreSQL and Flyway.
