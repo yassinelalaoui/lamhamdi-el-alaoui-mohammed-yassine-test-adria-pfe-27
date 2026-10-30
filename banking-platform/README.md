@@ -58,6 +58,7 @@ Aucun service ne peut encore etre lance : les modules ne contiennent pas de clas
 
 ## Documentation et preuves
 
+- [Documentation API Account-Service](docs/api/account-service.md)
 - [Checklist des parties A a I](docs/checklist.md)
 - [Suivi des fonctionnalites et tests](docs/tests/progress-tracker.md)
 - [Structure documentaire](docs/structure.md)

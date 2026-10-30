@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account-Service - preuve clean test</title>
+  <style>
+    :root { color-scheme: light; --ink: #172a3a; --muted: #526577; --accent: #126b68; --line: #c9d4db; --pass: #176b45; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 48px; color: var(--ink); background: #f3f6f7; font: 16px/1.5 "Segoe UI", sans-serif; }
+    main { max-width: 900px; margin: auto; padding: 40px; background: #fff; border: 1px solid var(--line); }
+    .eyebrow { color: var(--accent); font-size: 13px; font-weight: 700; text-transform: uppercase; }
+    h1 { margin: 8px 0 4px; font-size: 32px; }
+    .command { margin: 24px 0; padding: 16px; background: #eef4f4; font-family: Consolas, monospace; }
+    .result { color: var(--pass); font-size: 22px; font-weight: 700; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+    th, td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; }
+    th { color: var(--muted); font-size: 13px; }
+    .note { margin-top: 24px; color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">ADIRIA PFE · Account-Service</div>
+    <h1>Résultat des tests</h1>
+    <div class="command">mvn -pl account-service -am clean test</div>
+    <div class="result">BUILD SUCCESS · 18 tests · 0 échec · 0 erreur</div>
+    <table>
+      <thead><tr><th>Suite Surefire</th><th>Tests</th><th>Échecs</th><th>Erreurs</th><th>Ignorés</th></tr></thead>
+      <tbody>
+        <tr><td>service.AccountServiceTest</td><td>8</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>web.mcp.AccountMcpToolsTest</td><td>2</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>web.rest.AccountServiceIntegrationTest</td><td>8</td><td>0</td><td>0</td><td>0</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Tests d’intégration exécutés avec H2 en mode PostgreSQL. Aucun moteur Docker/PostgreSQL n’était disponible dans l’environnement pendant cette validation.</p>
+  </main>
+</body>
+</html>

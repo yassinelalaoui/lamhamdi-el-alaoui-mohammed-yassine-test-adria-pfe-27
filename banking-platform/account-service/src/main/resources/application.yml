@@ -1,0 +1,48 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  application:
+    name: account-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/banking}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  graphql:
+    graphiql:
+      enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/banking}
+  ai:
+    mcp:
+      server:
+        name: account-service-mcp
+        version: 0.1.0
+        type: SYNC
+        protocol: STREAMABLE
+        annotation-scanner:
+          enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

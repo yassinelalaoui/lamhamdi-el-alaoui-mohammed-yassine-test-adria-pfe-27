@@ -1,0 +1,58 @@
+enum AccountStatus {
+    ACTIVE
+    BLOCKED
+}
+
+enum BalanceOperationType {
+    CREDIT
+    DEBIT
+}
+
+type Account {
+    id: ID!
+    customerReference: String!
+    status: AccountStatus!
+    currency: String!
+    balance: String!
+    version: Int!
+}
+
+type BalanceAdjustmentResult {
+    operationReference: ID!
+    accountId: ID!
+    type: BalanceOperationType!
+    amount: String!
+    currency: String!
+    resultingBalance: String!
+    createdAt: String!
+    replayed: Boolean!
+}
+
+input CreateAccountInput {
+    customerReference: String!
+    currency: String!
+}
+
+input UpdateAccountInput {
+    customerReference: String!
+}
+
+input BalanceAdjustmentInput {
+    operationReference: ID!
+    type: BalanceOperationType!
+    amount: String!
+    currency: String!
+}
+
+type Query {
+    account(id: ID!): Account!
+    accounts(customerReference: String!): [Account!]!
+    accountBalance(id: ID!): Account!
+}
+
+type Mutation {
+    createAccount(input: CreateAccountInput!): Account!
+    updateAccount(id: ID!, input: UpdateAccountInput!): Account!
+    updateAccountStatus(id: ID!, status: AccountStatus!): Account!
+    adjustAccountBalance(id: ID!, input: BalanceAdjustmentInput!): BalanceAdjustmentResult!
+}
